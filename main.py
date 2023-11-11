@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 
 import jwt
 import requests
+from tqdm import tqdm
 
 from config import password, username
 
@@ -84,12 +85,12 @@ def main():
         raise ValueError("Erro no login.")
 
     conteudos = get_conteudos(token)
-    for conteudo in conteudos:
+    for conteudo in tqdm(conteudos, desc="Conteúdos"):
         conteudo_id = conteudo["_id"]
         nome_conteudo = conteudo["nome"]
 
         conteudo_programaticos = get_conteudo_programatico(conteudo_id)
-        for conteudo_programatico in conteudo_programaticos:
+        for conteudo_programatico in tqdm(conteudo_programaticos, desc="Arquivos"):
             parent_node = conteudo_programatico.get("parentNode", "")
             conteudo_arquivo = conteudo_programatico["conteudoArquivo"]
             titulo_arquivo = conteudo_arquivo["titulo"]
@@ -100,6 +101,9 @@ def main():
                 nomeArquivo=conteudo_arquivo["nomeArquivo"],
                 nomeTitulosSumario=conteudo_arquivo["titulo"],
             )
+
+            nome_conteudo = nome_conteudo.replace("/", "-")
+            parent_node = parent_node.replace("/", "-")
 
             folder_name = os.path.join(nome_conteudo, parent_node)
             if not os.path.exists(folder_name):
