@@ -1,9 +1,10 @@
 import os
-import jwt
-import requests
-from config import username, password
 from urllib.parse import urlencode
 
+import jwt
+import requests
+
+from config import password, username
 
 BASE_URL = "https://legislacaodestacada.com.br/api/v1"
 
