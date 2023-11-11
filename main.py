@@ -2,6 +2,7 @@ import os
 import requests
 from config import username, password
 
+
 def log_in():
     url_login = "https://legislacaodestacada.com.br/api/v1/auth/login"
     payload_login = f'{{"username":"{username}","password":"{password}"}}'
@@ -32,6 +33,7 @@ def log_in():
         print("Erro no login.")
         return None
 
+
 def download(token, num_dias, nome_pasta):
     for variavel in range(num_dias + 1):
         url_download = "https://legislacaodestacada.com.br/api/v1/conteudos/6425a420c8c0a8dc4bd652f2/baixar"
@@ -42,10 +44,12 @@ def download(token, num_dias, nome_pasta):
 
         headers_download = {
             "User-Agent": "insomnia/8.3.0",
-            "Authorization": f"Bearer {token}"
+            "Authorization": f"Bearer {token}",
         }
 
-        response_download = requests.get(url_download, headers=headers_download, params=querystring)
+        response_download = requests.get(
+            url_download, headers=headers_download, params=querystring
+        )
 
         if response_download.status_code == 200:
             with open(os.path.join(nome_pasta, f"DIA {variavel}.pdf"), "wb") as f:
@@ -54,13 +58,14 @@ def download(token, num_dias, nome_pasta):
         else:
             print(f"Erro ao baixar o arquivo DIA{variavel}.pdf.")
 
+
 def main():
     token = log_in()
 
     if token:
-        print('Coloque o número de dias do curso:')
+        print("Coloque o número de dias do curso:")
         num_dias = int(input())
-        nome_pasta = input('Coloque o nome da pasta:')
+        nome_pasta = input("Coloque o nome da pasta:")
 
         if not os.path.exists(nome_pasta):
             os.mkdir(nome_pasta)
@@ -68,6 +73,7 @@ def main():
         download(token, num_dias, nome_pasta)
 
         print("Todos os downloads foram concluídos, bons estudos Dr.Mariana!")
+
 
 if __name__ == "__main__":
     main()
