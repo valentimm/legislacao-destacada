@@ -10,25 +10,10 @@ BASE_URL = "https://legislacaodestacada.com.br/api/v1"
 
 def log_in():
     url_login = f"{BASE_URL}/auth/login"
-    payload_login = f'{{"username":"{username}","password":"{password}"}}'
-    headers_login = {
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-        "Connection": "keep-alive",
-        "Content-Type": "application/json",
-        "Origin": "https://legislacaodestacada.com.br",
-        "Referer": "https://legislacaodestacada.com.br/auth/login",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-origin",
-        "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
-        "sec-ch-ua": "^Google",
-        "sec-ch-ua-mobile": "?1",
-        "sec-ch-ua-platform": "^Android",
-        "Authorization": "Bearer ",
-    }
 
-    response_login = requests.post(url_login, data=payload_login, headers=headers_login)
+    payload_login = {"username": username, "password": password}
+
+    response_login = requests.post(url_login, json=payload_login)
 
     if response_login.status_code == 201:
         token = response_login.json()["token"]
