@@ -104,6 +104,10 @@ def main():
 
             nome_conteudo = nome_conteudo.replace("/", "-")
             parent_node = parent_node.replace("/", "-")
+            titulo_arquivo = titulo_arquivo.replace("/", "-")
+            nome_conteudo = nome_conteudo.replace(":", "-")
+            parent_node = parent_node.replace(":", "-")
+            titulo_arquivo = titulo_arquivo.replace(":", "-")
 
             folder_name = os.path.join(nome_conteudo, parent_node)
             if not os.path.exists(folder_name):
