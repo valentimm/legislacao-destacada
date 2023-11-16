@@ -27,9 +27,6 @@ def log_in():
 
 
 def get_conteudos(token):
-    """
-    https://legislacaodestacada.com.br/api/v1/marketplace-produtos/produtosCliente?filtros=%7B%22value%22:%7B%22cliente%22:%7B%22_id%22:%22645d7c3526d358cfbfc57b98%22,%22nome%22:%22Mariana%20Valentim%22,%22email%22:%22mariana_m_valentim@hotmail.com%22,%22cpf%22:%2208519527981%22,%22celular%22:%2241992482577%22,%22perfil%22:%22CLIENTE%22,%22endereco%22:%7B%22_id%22:%22645d7e38dd05f6d0fcb77418%22,%22logradouro%22:%22Alameda%20J%C3%BAlia%20da%20Costa%22,%22numero%22:%222102%22,%22complemento%22:%22Apartamento%20203%22,%22cep%22:%2280730-070%22,%22bairro%22:%22Bigorrilho%22,%22municipio%22:%22Curitiba%22,%22localidade%22:%22Curitiba%22,%22uf%22:%22PR%22%7D,%22ativo%22:true,%22senha%22:%22$2a$10$bK6V6OljrKper/44vLiQKe67ifjSZ.lrc6/0IQNvwh0HtoIqbw4si%22,%22contatos%22:%5B%5D,%22createdAt%22:%222023-05-11T23:37:25.965Z%22,%22updatedAt%22:%222023-05-11T23:46:00.961Z%22,%22__v%22:0,%22dataNascimento%22:%221997-04-13T03:00:00.000Z%22,%22imagem%22:%22http://legislacaodestacada.com.br/images/usuarios/profile.jpg%22,%22sexo%22:%22MASCULINO%22%7D%7D%7D
-    """
     url_conteudos = f"{BASE_URL}/marketplace-produtos/produtosCliente"
 
     id_usuario = jwt.decode(token, options={"verify_signature": False})["sub"]["_id"]
@@ -91,33 +88,42 @@ def main():
 
         conteudo_programaticos = get_conteudo_programatico(conteudo_id)
         for conteudo_programatico in tqdm(conteudo_programaticos, desc="Arquivos"):
-            parent_node = conteudo_programatico.get("parentNode", "")
-            conteudo_arquivo = conteudo_programatico["conteudoArquivo"]
-            titulo_arquivo = conteudo_arquivo["titulo"]
+            try:
+                parent_node = conteudo_programatico.get("parentNode", "")
+                conteudo_arquivo = conteudo_programatico["conteudoArquivo"]
+                titulo_arquivo = conteudo_arquivo["titulo"]
 
-            downloaded_file = download(
-                token=token,
-                id_conteudo=conteudo_id,
-                nomeArquivo=conteudo_arquivo["nomeArquivo"],
-                nomeTitulosSumario=conteudo_arquivo["titulo"],
-            )
+                downloaded_file = download(
+                    token=token,
+                    id_conteudo=conteudo_id,
+                    nomeArquivo=conteudo_arquivo["nomeArquivo"],
+                    nomeTitulosSumario=conteudo_arquivo["titulo"],
+                )
 
-            nome_conteudo = nome_conteudo.replace("/", "-")
-            parent_node = parent_node.replace("/", "-")
-            titulo_arquivo = titulo_arquivo.replace("/", "-")
-            nome_conteudo = nome_conteudo.replace(":", "-")
-            parent_node = parent_node.replace(":", "-")
-            titulo_arquivo = titulo_arquivo.replace(":", "-")
+                nome_conteudo = nome_conteudo.replace("/", "-").replace(":", "-")
+                parent_node = parent_node.replace("/", "-").replace(":", "-")
+                titulo_arquivo = titulo_arquivo.replace("/", "-").replace(":", "-")
 
-            folder_name = os.path.join(nome_conteudo, parent_node)
-            if not os.path.exists(folder_name):
-                os.makedirs(folder_name)
+                folder_name = os.path.join(nome_conteudo, parent_node)
+                if not os.path.exists(folder_name):
+                    os.makedirs(folder_name)
 
-            file_name = os.path.join(folder_name, f"{titulo_arquivo}.pdf")
-            with open(file_name, "wb") as f:
-                f.write(downloaded_file.content)
+                file_name = os.path.join(folder_name, f"{titulo_arquivo}.pdf")
 
-    print("Todos os downloads foram concluídos, bons estudos Dr.  Mariana!")
+                if downloaded_file is not None:
+                    with open(file_name, "wb") as f:
+                        f.write(downloaded_file.content)
+                else:
+                    print(
+                        f"Erro no {conteudo_arquivo['nomeArquivo']} falha no download."
+                    )
+
+            except KeyError as e:
+                print(
+                    f"O arquivo {titulo_arquivo} de {folder_name}não foi baixado. Falta a chave: {e}"
+                )
+
+    print("Todos os downloads foram concluídos, bons estudos Dr. Mariana!")
 
 
 if __name__ == "__main__":
